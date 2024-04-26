@@ -9,9 +9,33 @@ export default function App() {
   const [setQuantity, setSetQuantity] = useState(0);
   const [repQuantity, setRepQuantity] = useState(0);
   const [showEditWorkout, setShowEditWorkout] = useState(null);
+  const [selection, setSelection] = useState(null);
+
+  function handleSetSelection(value) {
+    setSelection(value);
+  }
 
   function handleFormSend(newWorkout) {
     setNewWorkouts([...newWorkouts, newWorkout]);
+  }
+
+  function handleEditFormSend(editWorkout) {
+    console.log(editWorkout);
+    setNewWorkouts(
+      newWorkouts.map((workout) =>
+        newWorkouts.indexOf(workout) === selection
+          ? {
+              ...workout,
+              addDay: editWorkout.addDay,
+              addRest: editWorkout.addRest,
+              workQuantity: editWorkout.workQuantity,
+              setQuantity: editWorkout.setQuantity,
+              repQuantity: editWorkout.repQuantity,
+              calculatedTime: editWorkout.totalTime,
+            }
+          : { ...workout }
+      )
+    );
   }
 
   function handleShowAddWorkout() {
@@ -21,7 +45,6 @@ export default function App() {
 
   function handleShowEditWorkout(theworkout) {
     setShowEditWorkout(theworkout);
-    console.log(theworkout);
     setShowAddWorkout(false);
   }
   return (
@@ -34,6 +57,7 @@ export default function App() {
         showAddWorkout={showAddWorkout}
         newWorkouts={newWorkouts}
         handleShowEditWorkout={handleShowEditWorkout}
+        handleSetSelection={handleSetSelection}
       />
       {showAddWorkout && (
         <AddWorkout
@@ -52,17 +76,10 @@ export default function App() {
       )}
       {showEditWorkout && (
         <EditWorkout
-          workQuantity={workQuantity}
-          setWorkQuantity={setWorkQuantity}
-          setQuantity={setQuantity}
-          setSetQuantity={setSetQuantity}
-          repQuantity={repQuantity}
-          setRepQuantity={setRepQuantity}
-          addDay={addDay}
-          setAddDay={setAddDay}
-          addRest={addRest}
-          setAddRest={setAddRest}
           showEditWorkout={showEditWorkout}
+          handleEditFormSend={handleEditFormSend}
+          selection={selection}
+          handleShowEditWorkout={handleShowEditWorkout}
         />
       )}
     </div>
@@ -80,20 +97,31 @@ function Header({ handleShowAddWorkout, showAddWorkout }) {
   );
 }
 
-function WorkoutList({ newWorkouts, handleShowEditWorkout }) {
+function WorkoutList({
+  newWorkouts,
+  handleShowEditWorkout,
+  handleSetSelection,
+}) {
   return (
     <ul>
       {newWorkouts.map((newWorkout) => (
         <Workouts
+          newWorkouts={newWorkouts}
           newWorkout={newWorkout}
           handleShowEditWorkout={handleShowEditWorkout}
+          handleSetSelection={handleSetSelection}
         />
       ))}
     </ul>
   );
 }
 
-function Workouts({ newWorkout, handleShowEditWorkout }) {
+function Workouts({
+  newWorkouts,
+  newWorkout,
+  handleShowEditWorkout,
+  handleSetSelection,
+}) {
   return (
     <div>
       <li>
@@ -109,7 +137,10 @@ function Workouts({ newWorkout, handleShowEditWorkout }) {
               )} Minutes`}
         </span>
         <button
-          onClick={handleShowEditWorkout(newWorkout)}
+          onClick={() => {
+            handleSetSelection(newWorkouts.indexOf(newWorkout));
+            handleShowEditWorkout(newWorkout);
+          }}
           className="pen-button"
         >
           🖊
@@ -177,7 +208,7 @@ function AddWorkout({
           Workouts{" "}
           <select
             value={workQuantity}
-            onChange={(workE) => setWorkQuantity(Number(workE.target.value))}
+            onChange={(e) => setWorkQuantity(Number(e.target.value))}
           >
             {Array.from({ length: 11 }, (_, i) => i).map((e) => (
               <option value={e}>{e}</option>
@@ -209,7 +240,7 @@ function AddWorkout({
         <h3>
           Rest Duration{" "}
           <input
-            value={addRest}
+            value={addRest ? addRest : ""}
             placeholder="In seconds whats your rest time?"
             type="number"
             onChange={(e) => setAddRest(Number(e.target.value))}
@@ -221,25 +252,44 @@ function AddWorkout({
   );
 }
 function EditWorkout({
-  addRest,
-  addDay,
-  setAddDay,
-  setAddRest,
-  setRepQuantity,
-  repQuantity,
-  setSetQuantity,
-  setQuantity,
-  setWorkQuantity,
-  workQuantity,
   showEditWorkout,
+  handleEditFormSend,
+  handleShowEditWorkout,
 }) {
+  const [addDay, setAddDay] = useState();
+  const [workQuantity, setWorkQuantity] = useState();
+  const [setQuantity, setSetQuantity] = useState();
+  const [repQuantity, setRepQuantity] = useState();
+  const [addRest, setAddRest] = useState();
+  function handleEditForm(e) {
+    e.preventDefault();
+    const editWorkout = {
+      addDay: addDay ? addDay : showEditWorkout.addDay,
+      workQuantity: workQuantity ? workQuantity : showEditWorkout.workQuantity,
+      setQuantity: setQuantity ? setQuantity : showEditWorkout.setQuantity,
+      repQuantity: repQuantity ? repQuantity : showEditWorkout.repQuantity,
+      addRest: addRest ? addRest : showEditWorkout.addRest,
+      totalTime: parseFloat(
+        (setQuantity ||
+          showEditWorkout.setQuantity * repQuantity ||
+          showEditWorkout.repQuantity * workQuantity ||
+          showEditWorkout.workQuantity * 3 + workQuantity ||
+          showEditWorkout.workQuantity * setQuantity ||
+          showEditWorkout.setQuantity * addRest ||
+          showEditWorkout.addRest) / 3600
+      ).toFixed(2),
+    };
+
+    handleEditFormSend(editWorkout);
+    handleShowEditWorkout();
+  }
   return (
-    <form className="editWorkouts">
+    <form onSubmit={handleEditForm} className="editWorkouts">
       <h1>Edit {showEditWorkout.addDay}'s workout</h1>
       <h3>
         Day{" "}
         <select
-          value={addDay}
+          value={!addDay ? showEditWorkout.addDay : addDay}
           placeholder="Select Day"
           onChange={(e) => setAddDay(e.target.value)}
         >
@@ -253,7 +303,7 @@ function EditWorkout({
       <h3>
         Workouts{" "}
         <select
-          value={workQuantity}
+          value={!workQuantity ? showEditWorkout.workQuantity : workQuantity}
           onChange={(workE) => setWorkQuantity(Number(workE.target.value))}
         >
           {Array.from({ length: 11 }, (_, i) => i).map((e) => (
@@ -264,7 +314,7 @@ function EditWorkout({
       <h3>
         Sets{" "}
         <select
-          value={setQuantity}
+          value={!setQuantity ? showEditWorkout.setQuantity : setQuantity}
           onChange={(e) => setSetQuantity(Number(e.target.value))}
         >
           {Array.from({ length: 11 }, (_, i) => i).map((e) => (
@@ -275,7 +325,7 @@ function EditWorkout({
       <h3>
         Reps{" "}
         <select
-          value={repQuantity}
+          value={!repQuantity ? showEditWorkout.repQuantity : repQuantity}
           onChange={(e) => setRepQuantity(Number(e.target.value))}
         >
           {Array.from({ length: 21 }, (_, i) => i).map((e) => (
@@ -286,7 +336,7 @@ function EditWorkout({
       <h3>
         Rest Duration{" "}
         <input
-          value={addRest}
+          value={addRest ? addRest : showEditWorkout.addRest}
           placeholder="In seconds whats your rest time?"
           type="number"
           onChange={(e) => setAddRest(Number(e.target.value))}
