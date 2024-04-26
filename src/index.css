@@ -1,0 +1,98 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+
+* {
+  font-family: Inter;
+  color: #141204;
+}
+
+body {
+  background-color: #141204;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  background-color: #141204;
+  border: none;
+  border-radius: 10px;
+  padding: 7px 10px;
+  height: 50%;
+  cursor: pointer;
+  color: #ddf45b;
+}
+button:hover {
+  transform: scale(1.1);
+  transition: 0.2s;
+}
+
+.header {
+  font-size: 1.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ddf45b;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+h1 {
+  margin-right: 10px;
+}
+.addWorkouts {
+  position: absolute;
+  width: 20%;
+  padding: 10px;
+  border-radius: 10px;
+  left: 62vw;
+  right: 17vw;
+  background: #ddf45b;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+h3 {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  margin-left: auto;
+}
+option,
+select,
+input {
+  border: none;
+  border-radius: 5px;
+  height: 25px;
+  font-size: 16px;
+}
+li {
+  line-height: 2;
+  font-size: 20px;
+  width: 55%;
+  color: #edeec0;
+}
+span {
+  font-size: 1.2em;
+  font-weight: 500;
+  color: #edeec0;
+}
+option {
+  border: none;
+}
+.pen-button {
+  margin-left: 10px;
+  padding: 1px 5px;
+  background-color: #ddf45b;
+  color: #141204;
+  font-size: 1em;
+}
+.editWorkouts {
+  position: absolute;
+  width: 20%;
+  padding: 10px;
+  left: 62vw;
+  right: 17vw;
+  border-radius: 10px;
+  background: #ddf45b;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+.change {
+  display: flex;
+  margin: 0 auto;
+}
